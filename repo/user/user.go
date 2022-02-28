@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"time"
 
 	du "github.com/riawaryati/mygram/backend/domain/user"
 	"github.com/riawaryati/mygram/backend/infra"
@@ -41,7 +40,7 @@ const (
 		age,
 		created_at
 	) VALUES (
-		?, ?, ?, ?, ?
+		?, ?, ?, ?, NOW()
 	)
 	RETURNING id`
 
@@ -65,7 +64,10 @@ const (
 		id = ?`
 
 	uqFilterUsername = `
-		lower(username) = ?`
+		username = ?`
+
+	// uqFilterUsernameLowwer = `
+	// 	lower(username) = ?`
 
 	uqFilterPassword = `
 		password = ?`
@@ -74,20 +76,24 @@ const (
 	// 	age = ?`
 
 	uqFilterEmail = `
-		lower(email) = ?`
+		email = ?`
+
+	// uqFilterEmailLowwer = `
+	// 	lower(email) = ?`
 )
 
 type UserDataRepoItf interface {
-	GetByID(userID int64) (*du.User, error)
+	GetByID(userID int) (*du.User, error)
 	GetByUsername(username string) ([]*du.User, error)
 	GetByEmailPassword(email string, password string) (*du.User, error)
+	GetByEmail(email string) (*du.User, error)
 	IsExistUser(email, password string) (bool, error)
-	InsertUser(tx *sql.Tx, data du.CreateUser) (int64, error)
-	UpdateUser(tx *sql.Tx, data du.UpdateUser) error
-	DeleteByID(userID int64) error
+	InsertUser(data du.CreateUser) (int, error)
+	UpdateUser(data du.UpdateUser) error
+	DeleteByID(userID int) error
 }
 
-func (ur UserDataRepo) GetByID(userID int64) (*du.User, error) {
+func (ur UserDataRepo) GetByID(userID int) (*du.User, error) {
 	var res du.User
 
 	q := fmt.Sprintf("%s%s%s", uqSelectUser, uqWhere, uqFilterUserID)
@@ -149,6 +155,28 @@ func (ur UserDataRepo) GetByEmailPassword(email string, password string) (*du.Us
 	return &res, nil
 }
 
+func (ur UserDataRepo) GetByEmail(email string) (*du.User, error) {
+	var res du.User
+
+	q := fmt.Sprintf("%s%s%s", uqSelectUser, uqWhere, uqFilterEmail)
+	query, args, err := ur.DBList.Backend.Read.In(q, strings.ToLower(email))
+	if err != nil {
+		return nil, err
+	}
+
+	query = ur.DBList.Backend.Read.Rebind(query)
+	err = ur.DBList.Backend.Read.Get(&res, query, args...)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	if res.ID == 0 {
+		return nil, nil
+	}
+
+	return &res, nil
+}
+
 func (ur UserDataRepo) IsExistUser(email, password string) (bool, error) {
 	var isExist bool
 
@@ -168,15 +196,13 @@ func (ur UserDataRepo) IsExistUser(email, password string) (bool, error) {
 	return isExist, nil
 }
 
-func (ur UserDataRepo) InsertUser(tx *sql.Tx, data du.CreateUser) (int64, error) {
+func (ur UserDataRepo) InsertUser(data du.CreateUser) (int, error) {
 	param := make([]interface{}, 0)
 
 	param = append(param, data.Username)
 	param = append(param, data.Email)
 	param = append(param, data.Password)
 	param = append(param, data.Age)
-
-	param = append(param, time.Now().UTC())
 
 	query, args, err := ur.DBList.Backend.Write.In(uqInsertUser, param...)
 	if err != nil {
@@ -186,11 +212,11 @@ func (ur UserDataRepo) InsertUser(tx *sql.Tx, data du.CreateUser) (int64, error)
 	query = ur.DBList.Backend.Write.Rebind(query)
 
 	var res *sql.Row
-	if tx == nil {
-		res = ur.DBList.Backend.Write.QueryRow(query, args...)
-	} else {
-		res = tx.QueryRow(query, args...)
-	}
+	// if tx == nil {
+	res = ur.DBList.Backend.Write.QueryRow(query, args...)
+	// } else {
+	// 	res = tx.QueryRow(query, args...)
+	// }
 
 	if err != nil {
 		return 0, err
@@ -201,7 +227,7 @@ func (ur UserDataRepo) InsertUser(tx *sql.Tx, data du.CreateUser) (int64, error)
 		return 0, err
 	}
 
-	var userID int64
+	var userID int
 	err = res.Scan(&userID)
 	if err != nil {
 		return 0, err
@@ -210,7 +236,7 @@ func (ur UserDataRepo) InsertUser(tx *sql.Tx, data du.CreateUser) (int64, error)
 	return userID, nil
 }
 
-func (ur UserDataRepo) UpdateUser(tx *sql.Tx, data du.UpdateUser) error {
+func (ur UserDataRepo) UpdateUser(data du.UpdateUser) error {
 	var err error
 
 	q := fmt.Sprintf("%s, %s, %s %s%s", uqUpdateUser, uqFilterEmail, uqFilterUsername, uqWhere, uqFilterUserID)
@@ -222,6 +248,7 @@ func (ur UserDataRepo) UpdateUser(tx *sql.Tx, data du.UpdateUser) error {
 
 	query = ur.DBList.Backend.Write.Rebind(query)
 	_, err = ur.DBList.Backend.Write.Exec(query, args...)
+
 	if err != nil {
 		return err
 	}
@@ -229,7 +256,7 @@ func (ur UserDataRepo) UpdateUser(tx *sql.Tx, data du.UpdateUser) error {
 	return nil
 }
 
-func (ur UserDataRepo) DeleteByID(userID int64) error {
+func (ur UserDataRepo) DeleteByID(userID int) error {
 	var err error
 
 	q := fmt.Sprintf("%s %s %s", uqDeleteUser, uqWhere, uqFilterUserID)

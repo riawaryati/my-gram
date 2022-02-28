@@ -17,7 +17,7 @@ import (
 type UserDataUsecaseItf interface {
 	RegisterUser(data du.CreateUser) (*du.CreateUserResponse, error)
 	LoginUser(data du.UserLoginRequest) (*general.JWTAccess, error)
-	UpdateUser(data du.UpdateUser) (bool, error)
+	UpdateUser(data du.UpdateUserRequest, accessToken string) (bool, error)
 	DeleteByAccessToken(accessToken string) (bool, error)
 }
 
@@ -38,18 +38,32 @@ func newUserDataUsecase(r repo.Repo, conf *general.SectionService, logger *logru
 }
 
 func (uu UserDataUsecase) RegisterUser(data du.CreateUser) (*du.CreateUserResponse, error) {
-	tx, err := uu.DBList.Backend.Write.Begin()
+	// tx, err := uu.DBList.Backend.Write.Begin()
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// fmt.Println(tx)
+
+	passwordHash, err := hashPassword(data.Password)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
-	userID, err := uu.Repo.InsertUser(tx, data)
-	if err != nil {
+	data.Password = passwordHash
+	userID, err := uu.Repo.InsertUser(data)
+	if err != nil || userID == 0 {
+		// return nil, errors.New("failed to insert user")
 		return nil, errors.New("failed to insert user")
 	}
 
 	user, err := uu.Repo.GetByID(userID)
 	if err != nil {
+		return nil, errors.New("failed to get user")
+	}
+
+	if user == nil {
 		return nil, errors.New("failed to get user")
 	}
 
@@ -64,14 +78,8 @@ func (uu UserDataUsecase) RegisterUser(data du.CreateUser) (*du.CreateUserRespon
 }
 
 func (uu UserDataUsecase) LoginUser(data du.UserLoginRequest) (*general.JWTAccess, error) {
-	passwordHash, err := hashPassword(data.Password)
 
-	if err != nil {
-		uu.Log.WithField("request", utils.StructToString(data)).WithError(err).Errorf("fail to hash password")
-		return nil, err
-	}
-
-	user, err := uu.Repo.GetByEmailPassword(data.Email, passwordHash)
+	user, err := uu.Repo.GetByEmail(data.Email)
 	if err != nil {
 		uu.Log.WithField("request", utils.StructToString(data)).WithError(err).Errorf("fail to checking is exist user")
 		return nil, err
@@ -80,6 +88,12 @@ func (uu UserDataUsecase) LoginUser(data du.UserLoginRequest) (*general.JWTAcces
 	if user == nil {
 		uu.Log.WithField("request", utils.StructToString(data)).Errorf("user is not exist")
 		return nil, errors.New("user not exist")
+	}
+
+	validPassword := validPassword(user.Password, data.Password)
+
+	if !validPassword {
+		return nil, errors.New("invalid password")
 	}
 
 	session, err := utils.GetEncrypt([]byte(uu.Conf.App.SecretKey), fmt.Sprintf("%v", user.ID))
@@ -115,15 +129,27 @@ func (uu UserDataUsecase) DeleteByAccessToken(accessToken string) (bool, error) 
 	return true, nil
 }
 
-func (uu UserDataUsecase) UpdateUser(data du.UpdateUser) (bool, error) {
-	tx, err := uu.DBList.Backend.Write.Begin()
+func (uu UserDataUsecase) UpdateUser(data du.UpdateUserRequest, accessToken string) (bool, error) {
+	// tx, err := uu.DBList.Backend.Write.Begin()
+	// if err != nil {
+	// 	return false, err
+	// }
+
+	userID, err := utils.GetUserIDFromToken(accessToken, uu.Conf.App.SecretKey)
 	if err != nil {
+		uu.Log.WithField("user id", userID).WithError(err).Error("fail to get user id from token")
 		return false, err
 	}
 
-	err = uu.Repo.UpdateUser(tx, data)
+	userUpdate := du.UpdateUser{
+		ID:       userID,
+		Email:    data.Email,
+		Username: data.Username,
+	}
+
+	err = uu.Repo.UpdateUser(userUpdate)
 	if err != nil {
-		tx.Rollback()
+		// tx.Rollback()
 		return false, err
 	}
 
@@ -133,4 +159,13 @@ func (uu UserDataUsecase) UpdateUser(data du.UpdateUser) (bool, error) {
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
+}
+
+func validPassword(hash, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
 }

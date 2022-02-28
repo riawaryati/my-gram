@@ -66,14 +66,14 @@ const (
 )
 
 type CommentDataRepoItf interface {
-	GetByID(commentID int64) (*du.Comment, error)
-	GetListByUserID(userID int64) ([]du.Comment, error)
-	InsertComment(tx *sql.Tx, data du.CreateComment) (int64, error)
+	GetByID(commentID int) (*du.Comment, error)
+	GetListByUserID(userID int) ([]du.Comment, error)
+	InsertComment(tx *sql.Tx, data du.CreateComment) (int, error)
 	UpdateComment(tx *sql.Tx, data du.UpdateComment) error
-	DeleteByID(commentID int64) error
+	DeleteByID(commentID int) error
 }
 
-func (ur CommentDataRepo) GetByID(commentID int64) (*du.Comment, error) {
+func (ur CommentDataRepo) GetByID(commentID int) (*du.Comment, error) {
 	var res du.Comment
 
 	q := fmt.Sprintf("%s%s%s", uqSelectComment, uqWhere, uqFilterCommentID)
@@ -95,7 +95,7 @@ func (ur CommentDataRepo) GetByID(commentID int64) (*du.Comment, error) {
 	return &res, nil
 }
 
-func (ur CommentDataRepo) GetListByUserID(userID int64) ([]du.Comment, error) {
+func (ur CommentDataRepo) GetListByUserID(userID int) ([]du.Comment, error) {
 	var res []du.Comment
 
 	q := fmt.Sprintf("%s%s%s", uqSelectComment, uqWhere, uqFilterUserID)
@@ -117,7 +117,7 @@ func (ur CommentDataRepo) GetListByUserID(userID int64) ([]du.Comment, error) {
 	return res, nil
 }
 
-func (ur CommentDataRepo) InsertComment(tx *sql.Tx, data du.CreateComment) (int64, error) {
+func (ur CommentDataRepo) InsertComment(tx *sql.Tx, data du.CreateComment) (int, error) {
 	param := make([]interface{}, 0)
 
 	param = append(param, data.Message)
@@ -149,7 +149,7 @@ func (ur CommentDataRepo) InsertComment(tx *sql.Tx, data du.CreateComment) (int6
 		return 0, err
 	}
 
-	var commentID int64
+	var commentID int
 	err = res.Scan(&commentID)
 	if err != nil {
 		return 0, err
@@ -177,7 +177,7 @@ func (ur CommentDataRepo) UpdateComment(tx *sql.Tx, data du.UpdateComment) error
 	return nil
 }
 
-func (ur CommentDataRepo) DeleteByID(commentID int64) error {
+func (ur CommentDataRepo) DeleteByID(commentID int) error {
 	var err error
 
 	q := fmt.Sprintf("%s %s %s", uqDeleteComment, uqWhere, uqFilterCommentID)

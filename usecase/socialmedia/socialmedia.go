@@ -15,9 +15,9 @@ import (
 
 type SocialMediaDataUsecaseItf interface {
 	CreateSocialMedia(data du.SocialMediaRequest, token string) (*du.CreateSocialMediaResponse, error)
-	UpdateSocialMedia(data du.SocialMediaRequest, socialMediaId int64, token string) (*du.UpdateSocialMediaResponse, error)
+	UpdateSocialMedia(data du.SocialMediaRequest, socialMediaId int, token string) (*du.UpdateSocialMediaResponse, error)
 	GetSocialMediasByToken(token string) ([]du.SocialMediaResponse, error)
-	DeleteByID(socialmediaId int64) (bool, error)
+	DeleteByID(socialmediaId int) (bool, error)
 }
 
 type SocialMediaDataUsecase struct {
@@ -122,7 +122,7 @@ func (uu SocialMediaDataUsecase) GetSocialMediasByToken(token string) ([]du.Soci
 	return res, nil
 }
 
-func (uu SocialMediaDataUsecase) DeleteByID(socialmediaID int64) (bool, error) {
+func (uu SocialMediaDataUsecase) DeleteByID(socialmediaID int) (bool, error) {
 
 	err := uu.Repo.DeleteByID(socialmediaID)
 	if err != nil {
@@ -132,7 +132,7 @@ func (uu SocialMediaDataUsecase) DeleteByID(socialmediaID int64) (bool, error) {
 	return true, nil
 }
 
-func (uu SocialMediaDataUsecase) UpdateSocialMedia(data du.SocialMediaRequest, socialMediaID int64, token string) (*du.UpdateSocialMediaResponse, error) {
+func (uu SocialMediaDataUsecase) UpdateSocialMedia(data du.SocialMediaRequest, socialMediaID int, token string) (*du.UpdateSocialMediaResponse, error) {
 	tx, err := uu.DBList.Backend.Write.Begin()
 	if err != nil {
 		return nil, err

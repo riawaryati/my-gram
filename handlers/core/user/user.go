@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/gorilla/mux"
 	cg "github.com/riawaryati/mygram/backend/constants/general"
 	"github.com/riawaryati/mygram/backend/domain/general"
 	du "github.com/riawaryati/mygram/backend/domain/user"
@@ -125,26 +123,26 @@ func (ch UserDataHandler) UpdateUser(res http.ResponseWriter, req *http.Request)
 		Status: cg.Fail,
 	}
 
-	message := ""
-	useridParam, ok := mux.Vars(req)["userId"]
+	// message := ""
+	// useridParam, ok := mux.Vars(req)["userId"]
 
-	if !ok {
-		message = "Url Param 'userId' is missing"
-		respData.Data = &handlers.ResponseMessageData{
-			Message: cg.Fail,
-		}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
-		return
-	}
+	// if !ok {
+	// 	message = "Url Param 'userId' is missing"
+	// 	respData.Data = &handlers.ResponseMessageData{
+	// 		Message: cg.Fail,
+	// 	}
+	// 	handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+	// 	return
+	// }
 
-	userid, err := strconv.ParseInt(useridParam, 0, 64)
-	if err != nil {
-		message = "Invalid param user id"
+	// userid, err := strconv.Atoi(useridParam)
+	// if err != nil {
+	// 	message = "Invalid param user id"
 
-		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
-		return
-	}
+	// 	respData.Data = general.ResponseMessageData{Message: message}
+	// 	handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+	// 	return
+	// }
 
 	var param du.UpdateUserRequest
 
@@ -169,13 +167,10 @@ func (ch UserDataHandler) UpdateUser(res http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	userUpdate := du.UpdateUser{
-		ID:       userid,
-		Email:    param.Email,
-		Username: param.Username,
-	}
+	authorizationHeader := req.Header.Get("Authorization")
+	accessToken := strings.Replace(authorizationHeader, "Bearer ", "", -1)
 
-	user, err := ch.Usecase.UpdateUser(userUpdate)
+	user, err := ch.Usecase.UpdateUser(param, accessToken)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
 		handlers.WriteResponse(res, respData, http.StatusInternalServerError)

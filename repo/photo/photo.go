@@ -77,14 +77,14 @@ const (
 )
 
 type PhotoDataRepoItf interface {
-	GetByID(photoID int64) (*du.Photo, error)
-	GetListByUserID(userID int64) ([]du.Photo, error)
-	InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int64, error)
+	GetByID(photoID int) (*du.Photo, error)
+	GetListByUserID(userID int) ([]du.Photo, error)
+	InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int, error)
 	UpdatePhoto(tx *sql.Tx, data du.UpdatePhoto) error
-	DeleteByID(photoID int64) error
+	DeleteByID(photoID int) error
 }
 
-func (ur PhotoDataRepo) GetByID(photoID int64) (*du.Photo, error) {
+func (ur PhotoDataRepo) GetByID(photoID int) (*du.Photo, error) {
 	var res du.Photo
 
 	q := fmt.Sprintf("%s%s%s", uqSelectPhoto, uqWhere, uqFilterPhotoID)
@@ -106,7 +106,7 @@ func (ur PhotoDataRepo) GetByID(photoID int64) (*du.Photo, error) {
 	return &res, nil
 }
 
-func (ur PhotoDataRepo) GetListByUserID(userID int64) ([]du.Photo, error) {
+func (ur PhotoDataRepo) GetListByUserID(userID int) ([]du.Photo, error) {
 	var res []du.Photo
 
 	q := fmt.Sprintf("%s%s%s", uqSelectPhoto, uqWhere, uqFilterUserID)
@@ -124,7 +124,7 @@ func (ur PhotoDataRepo) GetListByUserID(userID int64) ([]du.Photo, error) {
 	return res, nil
 }
 
-func (ur PhotoDataRepo) InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int64, error) {
+func (ur PhotoDataRepo) InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int, error) {
 	param := make([]interface{}, 0)
 
 	param = append(param, data.Title)
@@ -157,7 +157,7 @@ func (ur PhotoDataRepo) InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int64, err
 		return 0, err
 	}
 
-	var photoID int64
+	var photoID int
 	err = res.Scan(&photoID)
 	if err != nil {
 		return 0, err
@@ -185,7 +185,7 @@ func (ur PhotoDataRepo) UpdatePhoto(tx *sql.Tx, data du.UpdatePhoto) error {
 	return nil
 }
 
-func (ur PhotoDataRepo) DeleteByID(photoID int64) error {
+func (ur PhotoDataRepo) DeleteByID(photoID int) error {
 	var err error
 
 	q := fmt.Sprintf("%s %s %s", uqDeletePhoto, uqWhere, uqFilterPhotoID)

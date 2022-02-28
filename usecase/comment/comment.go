@@ -16,9 +16,9 @@ import (
 
 type CommentDataUsecaseItf interface {
 	CreateComment(data du.CommentRequest, token string) (*du.CreateCommentResponse, error)
-	UpdateComment(data du.UpdateCommentRequest, commentID int64, token string) (*du.UpdateCommentResponse, error)
+	UpdateComment(data du.UpdateCommentRequest, commentID int, token string) (*du.UpdateCommentResponse, error)
 	GetCommentsByToken(token string) ([]du.CommentResponse, error)
-	DeleteByID(commentId int64) (bool, error)
+	DeleteByID(commentId int) (bool, error)
 }
 
 type CommentDataUsecase struct {
@@ -136,7 +136,7 @@ func (uu CommentDataUsecase) GetCommentsByToken(token string) ([]du.CommentRespo
 	return res, nil
 }
 
-func (uu CommentDataUsecase) DeleteByID(commentID int64) (bool, error) {
+func (uu CommentDataUsecase) DeleteByID(commentID int) (bool, error) {
 
 	err := uu.Repo.DeleteByID(commentID)
 	if err != nil {
@@ -146,7 +146,7 @@ func (uu CommentDataUsecase) DeleteByID(commentID int64) (bool, error) {
 	return true, nil
 }
 
-func (uu CommentDataUsecase) UpdateComment(data du.UpdateCommentRequest, commentID int64, token string) (*du.UpdateCommentResponse, error) {
+func (uu CommentDataUsecase) UpdateComment(data du.UpdateCommentRequest, commentID int, token string) (*du.UpdateCommentResponse, error) {
 	tx, err := uu.DBList.Backend.Write.Begin()
 	if err != nil {
 		return nil, err

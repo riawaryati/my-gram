@@ -96,7 +96,7 @@ func (ch CommentDataHandler) UpdateComment(res http.ResponseWriter, req *http.Re
 		return
 	}
 
-	commentid, err := strconv.ParseInt(commentidParam, 0, 64)
+	commentid, err := strconv.Atoi(commentidParam)
 	if err != nil {
 		message = "Invalid param comment id"
 
@@ -161,7 +161,7 @@ func (ch CommentDataHandler) DeleteComment(res http.ResponseWriter, req *http.Re
 		return
 	}
 
-	commentId, err := strconv.ParseInt(commentIdParam, 0, 64)
+	commentId, err := strconv.Atoi(commentIdParam)
 	if err != nil {
 		message = "Invalid param social media id"
 

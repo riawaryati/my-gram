@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	ID        int64      `json:"id" db:"id"`
+	ID        int        `json:"id" db:"id"`
 	UserName  string     `json:"username" db:"username"`
 	Email     string     `json:"email" db:"email"`
 	Password  string     `json:"password" db:"password"`
@@ -24,7 +24,7 @@ type CreateUser struct {
 type CreateUserResponse struct {
 	Age      int    `json:"age"`
 	Email    string `json:"email"`
-	ID       int64  `json:"id"`
+	ID       int    `json:"id"`
 	Username string `json:"username"`
 }
 
@@ -39,13 +39,13 @@ type UpdateUserRequest struct {
 }
 
 type UpdateUser struct {
-	ID       int64  `json:"id"`
+	ID       int    `json:"id"`
 	Email    string `json:"email" validate:"empty=false"`
 	Username string `json:"username" validate:"empty=false"`
 }
 
 type UpdateUserResponse struct {
-	ID        int64      `json:"id"`
+	ID        int        `json:"id"`
 	UserName  string     `json:"username"`
 	Email     string     `json:"email"`
 	Age       int        `json:"age"`

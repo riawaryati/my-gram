@@ -69,14 +69,14 @@ const (
 )
 
 type SocialMediaDataRepoItf interface {
-	GetByID(socialmediaID int64) (*du.SocialMedia, error)
-	GetListByUserID(userID int64) ([]du.SocialMedia, error)
-	InsertSocialMedia(tx *sql.Tx, data du.CreateSocialMedia) (int64, error)
+	GetByID(socialmediaID int) (*du.SocialMedia, error)
+	GetListByUserID(userID int) ([]du.SocialMedia, error)
+	InsertSocialMedia(tx *sql.Tx, data du.CreateSocialMedia) (int, error)
 	UpdateSocialMedia(tx *sql.Tx, data du.UpdateSocialMedia) error
-	DeleteByID(socialmediaID int64) error
+	DeleteByID(socialmediaID int) error
 }
 
-func (ur SocialMediaDataRepo) GetByID(socialmediaID int64) (*du.SocialMedia, error) {
+func (ur SocialMediaDataRepo) GetByID(socialmediaID int) (*du.SocialMedia, error) {
 	var res du.SocialMedia
 
 	q := fmt.Sprintf("%s%s%s", uqSelectSocialMedia, uqWhere, uqFilterSocialMediaID)
@@ -98,7 +98,7 @@ func (ur SocialMediaDataRepo) GetByID(socialmediaID int64) (*du.SocialMedia, err
 	return &res, nil
 }
 
-func (ur SocialMediaDataRepo) GetListByUserID(userID int64) ([]du.SocialMedia, error) {
+func (ur SocialMediaDataRepo) GetListByUserID(userID int) ([]du.SocialMedia, error) {
 	var res []du.SocialMedia
 
 	q := fmt.Sprintf("%s%s%s", uqSelectSocialMedia, uqWhere, uqFilterUserID)
@@ -116,7 +116,7 @@ func (ur SocialMediaDataRepo) GetListByUserID(userID int64) ([]du.SocialMedia, e
 	return res, nil
 }
 
-func (ur SocialMediaDataRepo) InsertSocialMedia(tx *sql.Tx, data du.CreateSocialMedia) (int64, error) {
+func (ur SocialMediaDataRepo) InsertSocialMedia(tx *sql.Tx, data du.CreateSocialMedia) (int, error) {
 	param := make([]interface{}, 0)
 
 	param = append(param, data.Name)
@@ -148,7 +148,7 @@ func (ur SocialMediaDataRepo) InsertSocialMedia(tx *sql.Tx, data du.CreateSocial
 		return 0, err
 	}
 
-	var socialmediaID int64
+	var socialmediaID int
 	err = res.Scan(&socialmediaID)
 	if err != nil {
 		return 0, err
@@ -176,7 +176,7 @@ func (ur SocialMediaDataRepo) UpdateSocialMedia(tx *sql.Tx, data du.UpdateSocial
 	return nil
 }
 
-func (ur SocialMediaDataRepo) DeleteByID(socialmediaID int64) error {
+func (ur SocialMediaDataRepo) DeleteByID(socialmediaID int) error {
 	var err error
 
 	q := fmt.Sprintf("%s %s %s", uqDeleteSocialMedia, uqWhere, uqFilterSocialMediaID)

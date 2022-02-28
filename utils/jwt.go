@@ -151,13 +151,28 @@ func RenewAccessToken(tokenString string) (string, error) {
 	return accessToken, nil
 }
 
-func GetUserIDFromToken(session, secretKey string) (int64, error) {
+func GetUserIDFromToken(tokenString, secretKey string) (int, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Signing method invalid")
+		}
+
+		return jwtCfg.atSecretKey, nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	claims, _ := token.Claims.(jwt.MapClaims)
+	session := fmt.Sprintf("%v", claims["session"])
+
 	strID, err := GetDecrypt([]byte(secretKey), session)
 	if err != nil {
 		return 0, err
 	}
 
-	userID, err := StrToInt64(strID)
+	userID, err := StrToInt(strID)
 	if err != nil {
 		return 0, err
 	}

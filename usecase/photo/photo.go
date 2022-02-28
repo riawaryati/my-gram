@@ -15,9 +15,9 @@ import (
 
 type PhotoDataUsecaseItf interface {
 	CreatePhoto(data du.PhotoRequest, token string) (*du.CreatePhotoResponse, error)
-	UpdatePhoto(data du.PhotoRequest, photoID int64, token string) (*du.UpdatePhotoResponse, error)
+	UpdatePhoto(data du.PhotoRequest, photoID int, token string) (*du.UpdatePhotoResponse, error)
 	GetPhotosByToken(token string) ([]du.PhotoResponse, error)
-	DeleteByID(photoId int64) (bool, error)
+	DeleteByID(photoId int) (bool, error)
 }
 
 type PhotoDataUsecase struct {
@@ -124,7 +124,7 @@ func (uu PhotoDataUsecase) GetPhotosByToken(token string) ([]du.PhotoResponse, e
 	return res, nil
 }
 
-func (uu PhotoDataUsecase) DeleteByID(photoID int64) (bool, error) {
+func (uu PhotoDataUsecase) DeleteByID(photoID int) (bool, error) {
 
 	err := uu.Repo.DeleteByID(photoID)
 	if err != nil {
@@ -134,7 +134,7 @@ func (uu PhotoDataUsecase) DeleteByID(photoID int64) (bool, error) {
 	return true, nil
 }
 
-func (uu PhotoDataUsecase) UpdatePhoto(data du.PhotoRequest, photoID int64, token string) (*du.UpdatePhotoResponse, error) {
+func (uu PhotoDataUsecase) UpdatePhoto(data du.PhotoRequest, photoID int, token string) (*du.UpdatePhotoResponse, error) {
 	tx, err := uu.DBList.Backend.Write.Begin()
 	if err != nil {
 		return nil, err

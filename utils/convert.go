@@ -68,6 +68,10 @@ func GetTimeString() string {
 	return tString
 }
 
+func StrToInt(data string) (int, error) {
+	return strconv.Atoi(data)
+}
+
 func StrToInt64(data string) (int64, error) {
 	return strconv.ParseInt(data, 10, 64)
 }

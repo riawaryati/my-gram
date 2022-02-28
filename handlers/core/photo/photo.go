@@ -96,7 +96,7 @@ func (ch PhotoDataHandler) UpdatePhoto(res http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	photoid, err := strconv.ParseInt(photoidParam, 0, 64)
+	photoid, err := strconv.Atoi(photoidParam)
 	if err != nil {
 		message = "Invalid param photo id"
 
@@ -161,7 +161,7 @@ func (ch PhotoDataHandler) DeletePhoto(res http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	photoId, err := strconv.ParseInt(photoIdParam, 0, 64)
+	photoId, err := strconv.Atoi(photoIdParam)
 	if err != nil {
 		message = "Invalid param social media id"
 

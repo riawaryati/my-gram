@@ -1,9 +1,9 @@
 APP:
-  NAME: code
+  NAME: my-gram
   ENV: local
   URL: localhost
-  PORT: 3200
-  KEY: abcdefgqwertyz
+  PORT: 3000
+  KEY: ABCD01234567Eabec234wertyufg2343
   ENDPOINT: /v1
 
 ROUTES:
@@ -18,7 +18,7 @@ DATABASE:
     PASSWORD: P@ssw0rd
     URL: localhost
     PORT: 5432
-    NAME: my-gram-db
+    NAME: db-my-gram
     MAXIDLECONNS: 5
     MAXOPENCONNS: 5
     MAXLIFETIME: 31
@@ -29,7 +29,7 @@ DATABASE:
     PASSWORD: P@ssw0rd
     URL: localhost
     PORT: 5432
-    NAME: orders_by
+    NAME: db-my-gram
     MAXIDLECONNS: 5
     MAXOPENCONNS: 5
     MAXLIFETIME: 31
@@ -39,9 +39,9 @@ DATABASE:
 AUTHORIZATION:
   JWT:
     IS_ACTIVE: true
-    ACCESS_TOKEN_SECRET_KEY: abcdefgqwerty
+    ACCESS_TOKEN_SECRET_KEY: ABCD01234567Eabec234wertyufg2343
     ACCESS_TOKEN_DURATION: 30
-    REFRESH_TOKEN_SECRET_KEY: abcdefgqwertyz
+    REFRESH_TOKEN_SECRET_KEY: ABCD01234567Eabec234wertyufg2343
     REFRESH_TOKEN_DURATION: 365
   PUBLIC:
     SECRECT_KEY: ^qwertyuiop

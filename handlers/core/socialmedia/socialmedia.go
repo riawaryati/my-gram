@@ -96,7 +96,7 @@ func (ch SocialMediaDataHandler) UpdateSocialMedia(res http.ResponseWriter, req 
 		return
 	}
 
-	socialmediaid, err := strconv.ParseInt(socialmediaidParam, 0, 64)
+	socialmediaid, err := strconv.Atoi(socialmediaidParam)
 	if err != nil {
 		message = "Invalid param socialmedia id"
 
@@ -161,7 +161,7 @@ func (ch SocialMediaDataHandler) DeleteSocialMedia(res http.ResponseWriter, req 
 		return
 	}
 
-	socialmediaId, err := strconv.ParseInt(socialmediaIdParam, 0, 64)
+	socialmediaId, err := strconv.Atoi(socialmediaIdParam)
 	if err != nil {
 		message = "Invalid param social media id"
 
