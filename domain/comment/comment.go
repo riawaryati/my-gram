@@ -14,12 +14,12 @@ type Comment struct {
 }
 
 type CommentRequest struct {
-	Message string `json:"message"`
+	Message string `json:"message" validate:"empty=false"`
 	PhotoID int    `json:"photo_id"`
 }
 
 type UpdateCommentRequest struct {
-	Message string `json:"message"`
+	Message string `json:"message" validate:"empty=false"`
 }
 
 type CreateComment struct {

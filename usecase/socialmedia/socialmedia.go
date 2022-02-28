@@ -104,6 +104,7 @@ func (uu SocialMediaDataUsecase) GetSocialMediasByToken(token string) (*du.Socia
 		var userSocialMedia du.UserSocialMedia
 
 		if user != nil {
+			userSocialMedia.ID = socialmedia.UserID
 			userSocialMedia.ProfileImageUrl = ""
 			userSocialMedia.UserName = user.UserName
 		}

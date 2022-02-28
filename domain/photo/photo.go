@@ -15,9 +15,9 @@ type Photo struct {
 }
 
 type PhotoRequest struct {
-	Title    string `json:"title"`
+	Title    string `json:"title" validate:"empty=false"`
 	Caption  string `json:"caption"`
-	PhotoUrl string `json:"photo_url"`
+	PhotoUrl string `json:"photo_url" validate:"empty=false"`
 }
 
 type CreatePhoto struct {

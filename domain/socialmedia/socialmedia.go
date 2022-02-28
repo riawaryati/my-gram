@@ -14,8 +14,8 @@ type SocialMedia struct {
 }
 
 type SocialMediaRequest struct {
-	Name           string `json:"name"`
-	SocialMediaUrl string `json:"social_media_url"`
+	Name           string `json:"name" validate:"empty=false"`
+	SocialMediaUrl string `json:"social_media_url" validate:"empty=false"`
 }
 
 type CreateSocialMedia struct {
