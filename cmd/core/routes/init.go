@@ -12,7 +12,7 @@ func GetCoreEndpoint(conf *general.SectionService, handler core.Handler, log *lo
 
 	jwtRoute := parentRoute.PathPrefix(conf.App.Endpoint).Subrouter()
 	nonJWTRoute := parentRoute.PathPrefix(conf.App.Endpoint).Subrouter()
-	// publicRoute := parentRoute.PathPrefix(conf.App.Endpoint).Subrouter()
+	publicRoute := parentRoute.PathPrefix(conf.App.Endpoint).Subrouter()
 
 	// // Renew Access Token Endpoint.
 	// publicRoute.HandleFunc("/renew-token", handler.Token.RenewAccessToken).Methods(http.MethodGet)
@@ -27,7 +27,10 @@ func GetCoreEndpoint(conf *general.SectionService, handler core.Handler, log *lo
 	}
 
 	// Get Endpoint.
-	getUser(nonJWTRoute, jwtRoute, conf, handler)
+	getUser(publicRoute, jwtRoute, handler)
+	getSocialMedia(jwtRoute, handler)
+	getComment(jwtRoute, handler)
+	getPhoto(jwtRoute, handler)
 	// getOrder(nonJWTRoute, jwtRoute, conf, handler)
 
 	return parentRoute

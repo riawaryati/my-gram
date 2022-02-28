@@ -77,6 +77,16 @@ func GetCoreConfig() (*general.SectionService, error) {
 				SecretKey: viper.GetString("AUTHORIZATION.PUBLIC.SECRECT_KEY"),
 			},
 		},
+		CloudStorage: general.CloudStorageAccount{
+			S3: general.S3CredentialKey{
+				AccessKeyID:     viper.GetString("CLOUD_STORAGE.S3.ACCESS_KEY_ID"),
+				SecretAccessKey: viper.GetString("CLOUD_STORAGE.S3.SECRET_ACCESS_KEY"),
+				Region:          viper.GetString("CLOUD_STORAGE.S3.REGION"),
+				BucketName:      viper.GetString("CLOUD_STORAGE.S3.BUCKET_NAME"),
+				Endpoint:        viper.GetString("CLOUD_STORAGE.S3.ENDPOINT"),
+				BaseURL:         viper.GetString("CLOUD_STORAGE.S3.BASE_URL"),
+			},
+		},
 	}
 
 	return data, nil

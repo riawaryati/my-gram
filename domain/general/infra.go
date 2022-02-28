@@ -5,19 +5,20 @@ import (
 )
 
 type SectionService struct {
-	App           AppAccount       `json:",omitempty"`
-	Route         RouteAccount     `json:",omitempty"`
-	Database      DatabaseAccount  `json:",omitempty"`
-	Redis         RedisAccount     `json:",omitempty"`
-	Authorization AuthAccount      `json:",omitempty"`
-	Toggle        ToggleAccount    `json:",omitempty"`
-	KeyData       KeyAccount       `json:",omitempty"`
-	Minio         MinioSecret      `json:",omitempty"`
-	NSQProducer   NSQProducer      `json:",omitempty"`
-	NSQConsumer   NSQConsumer      `json:",omitempty"`
-	PartnerSecret PartnerSecret    `json:",omitempty"`
-	Logistic      LogisticSecret   `json:",omitempty"`
-	Whitelist     WhitelistAccount `json:",omitempty"`
+	App           AppAccount          `json:",omitempty"`
+	Route         RouteAccount        `json:",omitempty"`
+	Database      DatabaseAccount     `json:",omitempty"`
+	Redis         RedisAccount        `json:",omitempty"`
+	Authorization AuthAccount         `json:",omitempty"`
+	Toggle        ToggleAccount       `json:",omitempty"`
+	KeyData       KeyAccount          `json:",omitempty"`
+	Minio         MinioSecret         `json:",omitempty"`
+	NSQProducer   NSQProducer         `json:",omitempty"`
+	NSQConsumer   NSQConsumer         `json:",omitempty"`
+	PartnerSecret PartnerSecret       `json:",omitempty"`
+	Logistic      LogisticSecret      `json:",omitempty"`
+	Whitelist     WhitelistAccount    `json:",omitempty"`
+	CloudStorage  CloudStorageAccount `json:",omitempty"`
 }
 
 type AppAccount struct {
@@ -94,14 +95,15 @@ type S3CredentialKey struct {
 	FileSource      map[string]string `json:",omitempty"`
 	URLDuration     int               `json:",omitempty"`
 	Endpoint        string            `josn:",omitempty"`
+	BaseURL         string            `josn:",omitempty"`
 }
 
 type MinioSecret struct {
-	BucketName string            `json:", omitempty"`
-	Endpoint   string            `json:", omitempty"`
-	Key        string            `json:", omitempty"`
-	Secret     string            `json:", omitempty"`
-	Region     string            `json:", omitempty"`
+	BucketName string            `json:",omitempty"`
+	Endpoint   string            `json:",omitempty"`
+	Key        string            `json:",omitempty"`
+	Secret     string            `json:",omitempty"`
+	Region     string            `json:",omitempty"`
 	TempFolder string            `json:",omitempty"`
 	BaseURL    string            `json:",omitempty"`
 	FileSource map[string]string `json:",omitempty"`
@@ -199,6 +201,10 @@ type WhitelistRegionData struct {
 type WhitelistUserData struct {
 	Phone map[string]string `json:",omitempty"`
 	OTP   string            `json:",omitempty"`
+}
+
+type CloudStorageAccount struct {
+	S3 S3CredentialKey `json:",omitempty"`
 }
 
 func IsAllowImageType(imageType string) bool {

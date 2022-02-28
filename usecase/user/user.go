@@ -18,7 +18,7 @@ type UserDataUsecaseItf interface {
 	RegisterUser(data du.CreateUser) (*du.CreateUserResponse, error)
 	LoginUser(data du.UserLoginRequest) (*general.JWTAccess, error)
 	UpdateUser(data du.UpdateUser) (bool, error)
-	DeleteByID(userId int64) (bool, error)
+	DeleteByAccessToken(accessToken string) (bool, error)
 }
 
 type UserDataUsecase struct {
@@ -71,26 +71,26 @@ func (uu UserDataUsecase) LoginUser(data du.UserLoginRequest) (*general.JWTAcces
 		return nil, err
 	}
 
-	isExist, err := uu.Repo.IsExistUser(data.Email, passwordHash)
+	user, err := uu.Repo.GetByEmailPassword(data.Email, passwordHash)
 	if err != nil {
 		uu.Log.WithField("request", utils.StructToString(data)).WithError(err).Errorf("fail to checking is exist user")
 		return nil, err
 	}
 
-	if !isExist {
+	if user == nil {
 		uu.Log.WithField("request", utils.StructToString(data)).Errorf("user is not exist")
 		return nil, errors.New("user not exist")
 	}
 
-	session, err := utils.GetEncrypt([]byte(uu.Conf.App.SecretKey), fmt.Sprintf("%v", 1))
+	session, err := utils.GetEncrypt([]byte(uu.Conf.App.SecretKey), fmt.Sprintf("%v", user.ID))
 	if err != nil {
-		uu.Log.WithField("user id", 1).WithError(err).Error("fail to get token data from infra")
+		uu.Log.WithField("user id", user.ID).WithError(err).Error("fail to get token data from infra")
 		return nil, err
 	}
 
 	accessToken, _, err := utils.GenerateJWT(session)
 	if err != nil {
-		uu.Log.WithField("user id", 1).WithError(err).Error("fail to get token data from infra")
+		uu.Log.WithField("user id", user.ID).WithError(err).Error("fail to get token data from infra")
 		return nil, err
 	}
 
@@ -99,9 +99,15 @@ func (uu UserDataUsecase) LoginUser(data du.UserLoginRequest) (*general.JWTAcces
 	return jwtToken, nil
 }
 
-func (uu UserDataUsecase) DeleteByID(userID int64) (bool, error) {
+func (uu UserDataUsecase) DeleteByAccessToken(accessToken string) (bool, error) {
 
-	err := uu.Repo.DeleteByID(userID)
+	userID, err := utils.GetUserIDFromToken(accessToken, uu.Conf.App.SecretKey)
+	if err != nil {
+		uu.Log.WithField("user id", userID).WithError(err).Error("fail to get user id from token")
+		return false, err
+	}
+
+	err = uu.Repo.DeleteByID(userID)
 	if err != nil {
 		return false, err
 	}

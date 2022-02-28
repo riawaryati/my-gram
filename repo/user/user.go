@@ -29,8 +29,7 @@ const (
 		password,
 		age,
 		created_at,
-		updated_at,
-		updated_by
+		updated_at
 	FROM
 		users`
 
@@ -81,7 +80,7 @@ const (
 type UserDataRepoItf interface {
 	GetByID(userID int64) (*du.User, error)
 	GetByUsername(username string) ([]*du.User, error)
-	GetByEmail(email string) (*du.User, error)
+	GetByEmailPassword(email string, password string) (*du.User, error)
 	IsExistUser(email, password string) (bool, error)
 	InsertUser(tx *sql.Tx, data du.CreateUser) (int64, error)
 	UpdateUser(tx *sql.Tx, data du.UpdateUser) error
@@ -128,11 +127,11 @@ func (ur UserDataRepo) GetByUsername(username string) ([]*du.User, error) {
 	return res, nil
 }
 
-func (ur UserDataRepo) GetByEmail(email string) (*du.User, error) {
+func (ur UserDataRepo) GetByEmailPassword(email string, password string) (*du.User, error) {
 	var res du.User
 
-	q := fmt.Sprintf("%s%s%s", uqSelectUser, uqWhere, uqFilterEmail)
-	query, args, err := ur.DBList.Backend.Read.In(q, strings.ToLower(email))
+	q := fmt.Sprintf("%s%s%s AND %s", uqSelectUser, uqWhere, uqFilterEmail, uqFilterPassword)
+	query, args, err := ur.DBList.Backend.Read.In(q, strings.ToLower(email), password)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +215,7 @@ func (ur UserDataRepo) UpdateUser(tx *sql.Tx, data du.UpdateUser) error {
 
 	q := fmt.Sprintf("%s, %s, %s %s%s", uqUpdateUser, uqFilterEmail, uqFilterUsername, uqWhere, uqFilterUserID)
 
-	query, args, err := ur.DBList.Backend.Read.In(q, strings.ToLower(data.Username), strings.ToLower(data.Username), data.ID)
+	query, args, err := ur.DBList.Backend.Read.In(q, strings.ToLower(data.Email), strings.ToLower(data.Username), data.ID)
 	if err != nil {
 		return err
 	}

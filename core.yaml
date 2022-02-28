@@ -45,3 +45,12 @@ AUTHORIZATION:
     REFRESH_TOKEN_DURATION: 365
   PUBLIC:
     SECRECT_KEY: ^qwertyuiop
+
+CLOUD_STORAGE:
+  S3:
+    ACCESS_KEY_ID: MC2XQONE7TVDINTG7MIC
+    SECRET_ACCESS_KEY: xY4ImvTSPJ554IPUslJhNlrYmqrA7KLxSLi40dsF5/4
+    REGION: sgp1
+    BUCKET_NAME: glng18
+    ENDPOINT: sgp1.digitaloceanspaces.com
+    BASE_URL: https://glng18.sgp1.digitaloceanspaces.com/
