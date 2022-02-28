@@ -42,21 +42,21 @@ func (ch PhotoDataHandler) CreatePhoto(res http.ResponseWriter, req *http.Reques
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (ch PhotoDataHandler) CreatePhoto(res http.ResponseWriter, req *http.Reques
 	photo, err := ch.Usecase.CreatePhoto(param, accessToken)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -75,7 +75,7 @@ func (ch PhotoDataHandler) CreatePhoto(res http.ResponseWriter, req *http.Reques
 		Data:   photo,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, photo, http.StatusCreated)
 	return
 }
 
@@ -92,7 +92,7 @@ func (ch PhotoDataHandler) UpdatePhoto(res http.ResponseWriter, req *http.Reques
 		respData.Data = &handlers.ResponseMessageData{
 			Message: cg.Fail,
 		}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -101,7 +101,7 @@ func (ch PhotoDataHandler) UpdatePhoto(res http.ResponseWriter, req *http.Reques
 		message = "Invalid param photo id"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -110,21 +110,21 @@ func (ch PhotoDataHandler) UpdatePhoto(res http.ResponseWriter, req *http.Reques
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
@@ -134,7 +134,7 @@ func (ch PhotoDataHandler) UpdatePhoto(res http.ResponseWriter, req *http.Reques
 	photo, err := ch.Usecase.UpdatePhoto(param, photoid, accessToken)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -143,7 +143,7 @@ func (ch PhotoDataHandler) UpdatePhoto(res http.ResponseWriter, req *http.Reques
 		Data:   photo,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, photo, http.StatusOK)
 	return
 }
 
@@ -157,7 +157,7 @@ func (ch PhotoDataHandler) DeletePhoto(res http.ResponseWriter, req *http.Reques
 	if !ok {
 		message = "Url Param 'photoId' is missing"
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -166,7 +166,7 @@ func (ch PhotoDataHandler) DeletePhoto(res http.ResponseWriter, req *http.Reques
 		message = "Invalid param social media id"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -176,7 +176,7 @@ func (ch PhotoDataHandler) DeletePhoto(res http.ResponseWriter, req *http.Reques
 		message = err.Error()
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -184,7 +184,7 @@ func (ch PhotoDataHandler) DeletePhoto(res http.ResponseWriter, req *http.Reques
 		message = "Update photo gagal"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -193,7 +193,9 @@ func (ch PhotoDataHandler) DeletePhoto(res http.ResponseWriter, req *http.Reques
 		Data:   message,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	response := general.ResponseMessageData{Message: "Your photo has been succesfully deleted"}
+
+	handlers.WriteResponse(res, response, http.StatusOK)
 }
 
 func (ch PhotoDataHandler) GetPhotos(res http.ResponseWriter, req *http.Request) {
@@ -210,7 +212,7 @@ func (ch PhotoDataHandler) GetPhotos(res http.ResponseWriter, req *http.Request)
 		message := err.Error()
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -219,5 +221,5 @@ func (ch PhotoDataHandler) GetPhotos(res http.ResponseWriter, req *http.Request)
 		Data:   photos,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, photos, http.StatusOK)
 }

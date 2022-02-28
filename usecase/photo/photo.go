@@ -2,6 +2,7 @@ package photo
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/riawaryati/mygram/backend/domain/general"
 	du "github.com/riawaryati/mygram/backend/domain/photo"
@@ -39,10 +40,10 @@ func newPhotoDataUsecase(r repo.Repo, conf *general.SectionService, logger *logr
 }
 
 func (uu PhotoDataUsecase) CreatePhoto(data du.PhotoRequest, token string) (*du.CreatePhotoResponse, error) {
-	tx, err := uu.DBList.Backend.Write.Begin()
-	if err != nil {
-		return nil, err
-	}
+	// tx, err := uu.DBList.Backend.Write.Begin()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	userID, err := utils.GetUserIDFromToken(token, uu.Conf.App.SecretKey)
 	if err != nil {
@@ -57,7 +58,7 @@ func (uu PhotoDataUsecase) CreatePhoto(data du.PhotoRequest, token string) (*du.
 		Caption:  data.Caption,
 	}
 
-	photoID, err := uu.Repo.InsertPhoto(tx, reqData)
+	photoID, err := uu.Repo.InsertPhoto(reqData)
 	if err != nil {
 		return nil, errors.New("failed to insert photo")
 	}
@@ -86,12 +87,15 @@ func (uu PhotoDataUsecase) GetPhotosByToken(token string) ([]du.PhotoResponse, e
 		uu.Log.WithField("user id", userID).WithError(err).Error("fail to get user id from token")
 		return nil, err
 	}
+
+	fmt.Println(userID)
 	photos, err := uu.Repo.GetListByUserID(userID)
 	if err != nil {
 		uu.Log.WithField("request", userID).WithError(err).Errorf("fail to checking is exist photo")
 		return nil, err
 	}
 
+	fmt.Println(photos)
 	if photos == nil {
 		uu.Log.WithField("request", userID).Errorf("photo is not exist")
 		return nil, errors.New("photo not exist")
@@ -135,10 +139,10 @@ func (uu PhotoDataUsecase) DeleteByID(photoID int) (bool, error) {
 }
 
 func (uu PhotoDataUsecase) UpdatePhoto(data du.PhotoRequest, photoID int, token string) (*du.UpdatePhotoResponse, error) {
-	tx, err := uu.DBList.Backend.Write.Begin()
-	if err != nil {
-		return nil, err
-	}
+	// tx, err := uu.DBList.Backend.Write.Begin()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	userID, err := utils.GetUserIDFromToken(token, uu.Conf.App.SecretKey)
 	if err != nil {
@@ -154,7 +158,7 @@ func (uu PhotoDataUsecase) UpdatePhoto(data du.PhotoRequest, photoID int, token 
 		Title:    data.Title,
 	}
 
-	err = uu.Repo.UpdatePhoto(tx, reqData)
+	err = uu.Repo.UpdatePhoto(reqData)
 	if err != nil {
 		return nil, err
 	}

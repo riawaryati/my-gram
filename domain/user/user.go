@@ -15,8 +15,8 @@ type User struct {
 }
 
 type CreateUser struct {
-	Age      int    `json:"age"`
-	Email    string `json:"email" validate:"empty=false"`
+	Age      int    `json:"age" validate:"gt=8"`
+	Email    string `json:"email" validate:"empty=false & format=email"`
 	Password string `json:"password" validate:"empty=false"`
 	Username string `json:"username" validate:"empty=false"`
 }
@@ -29,18 +29,18 @@ type CreateUserResponse struct {
 }
 
 type UserLoginRequest struct {
-	Email    string `json:"email" validate:"empty=false"`
+	Email    string `json:"email" validate:"empty=false & format=email"`
 	Password string `json:"password" validate:"empty=false"`
 }
 
 type UpdateUserRequest struct {
-	Email    string `json:"email" validate:"empty=false"`
+	Email    string `json:"email" validate:"empty=false & format=email"`
 	Username string `json:"username" validate:"empty=false"`
 }
 
 type UpdateUser struct {
 	ID       int    `json:"id"`
-	Email    string `json:"email" validate:"empty=false"`
+	Email    string `json:"email" validate:"empty=false & format=email"`
 	Username string `json:"username" validate:"empty=false"`
 }
 

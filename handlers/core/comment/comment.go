@@ -42,21 +42,21 @@ func (ch CommentDataHandler) CreateComment(res http.ResponseWriter, req *http.Re
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (ch CommentDataHandler) CreateComment(res http.ResponseWriter, req *http.Re
 	comment, err := ch.Usecase.CreateComment(param, accessToken)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -75,7 +75,7 @@ func (ch CommentDataHandler) CreateComment(res http.ResponseWriter, req *http.Re
 		Data:   comment,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, respData.Data, http.StatusCreated)
 	return
 }
 
@@ -92,7 +92,7 @@ func (ch CommentDataHandler) UpdateComment(res http.ResponseWriter, req *http.Re
 		respData.Data = &handlers.ResponseMessageData{
 			Message: cg.Fail,
 		}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -101,7 +101,7 @@ func (ch CommentDataHandler) UpdateComment(res http.ResponseWriter, req *http.Re
 		message = "Invalid param comment id"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -110,21 +110,21 @@ func (ch CommentDataHandler) UpdateComment(res http.ResponseWriter, req *http.Re
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
@@ -134,7 +134,7 @@ func (ch CommentDataHandler) UpdateComment(res http.ResponseWriter, req *http.Re
 	comment, err := ch.Usecase.UpdateComment(param, commentid, accessToken)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -143,7 +143,7 @@ func (ch CommentDataHandler) UpdateComment(res http.ResponseWriter, req *http.Re
 		Data:   comment,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, respData.Data, http.StatusOK)
 	return
 }
 
@@ -157,7 +157,7 @@ func (ch CommentDataHandler) DeleteComment(res http.ResponseWriter, req *http.Re
 	if !ok {
 		message = "Url Param 'commentId' is missing"
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -166,7 +166,7 @@ func (ch CommentDataHandler) DeleteComment(res http.ResponseWriter, req *http.Re
 		message = "Invalid param social media id"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -176,7 +176,7 @@ func (ch CommentDataHandler) DeleteComment(res http.ResponseWriter, req *http.Re
 		message = err.Error()
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -184,7 +184,7 @@ func (ch CommentDataHandler) DeleteComment(res http.ResponseWriter, req *http.Re
 		message = "Update comment gagal"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -193,7 +193,9 @@ func (ch CommentDataHandler) DeleteComment(res http.ResponseWriter, req *http.Re
 		Data:   message,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	response := general.ResponseMessageData{Message: "Your comment has been succesfully deleted"}
+
+	handlers.WriteResponse(res, response, http.StatusOK)
 }
 
 func (ch CommentDataHandler) GetComments(res http.ResponseWriter, req *http.Request) {
@@ -210,7 +212,7 @@ func (ch CommentDataHandler) GetComments(res http.ResponseWriter, req *http.Requ
 		message := err.Error()
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -219,5 +221,5 @@ func (ch CommentDataHandler) GetComments(res http.ResponseWriter, req *http.Requ
 		Data:   comments,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, comments, http.StatusOK)
 }

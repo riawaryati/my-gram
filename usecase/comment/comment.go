@@ -42,10 +42,10 @@ func newCommentDataUsecase(r repo.Repo, conf *general.SectionService, logger *lo
 }
 
 func (uu CommentDataUsecase) CreateComment(data du.CommentRequest, token string) (*du.CreateCommentResponse, error) {
-	tx, err := uu.DBList.Backend.Write.Begin()
-	if err != nil {
-		return nil, err
-	}
+	// tx, err := uu.DBList.Backend.Write.Begin()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	userID, err := utils.GetUserIDFromToken(token, uu.Conf.App.SecretKey)
 	if err != nil {
@@ -58,7 +58,7 @@ func (uu CommentDataUsecase) CreateComment(data du.CommentRequest, token string)
 		PhotoID: data.PhotoID,
 		Message: data.Message,
 	}
-	commentID, err := uu.Repo.InsertComment(tx, reqData)
+	commentID, err := uu.Repo.InsertComment(reqData)
 	if err != nil {
 		return nil, errors.New("failed to insert comment")
 	}
@@ -86,6 +86,7 @@ func (uu CommentDataUsecase) GetCommentsByToken(token string) ([]du.CommentRespo
 		uu.Log.WithField("user id", userID).WithError(err).Error("fail to get user id from token")
 		return nil, err
 	}
+
 	comments, err := uu.Repo.GetListByUserID(userID)
 	if err != nil {
 		uu.Log.WithField("request", userID).WithError(err).Errorf("fail to checking is exist comment")
@@ -147,10 +148,10 @@ func (uu CommentDataUsecase) DeleteByID(commentID int) (bool, error) {
 }
 
 func (uu CommentDataUsecase) UpdateComment(data du.UpdateCommentRequest, commentID int, token string) (*du.UpdateCommentResponse, error) {
-	tx, err := uu.DBList.Backend.Write.Begin()
-	if err != nil {
-		return nil, err
-	}
+	// tx, err := uu.DBList.Backend.Write.Begin()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	userID, err := utils.GetUserIDFromToken(token, uu.Conf.App.SecretKey)
 	if err != nil {
@@ -164,7 +165,7 @@ func (uu CommentDataUsecase) UpdateComment(data du.UpdateCommentRequest, comment
 		Message: data.Message,
 	}
 
-	err = uu.Repo.UpdateComment(tx, reqData)
+	err = uu.Repo.UpdateComment(reqData)
 	if err != nil {
 		return nil, err
 	}

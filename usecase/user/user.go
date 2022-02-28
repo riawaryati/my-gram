@@ -45,6 +45,16 @@ func (uu UserDataUsecase) RegisterUser(data du.CreateUser) (*du.CreateUserRespon
 
 	// fmt.Println(tx)
 
+	userEmail, err := uu.Repo.GetByEmail(data.Email)
+	if userEmail != nil && err == nil {
+		return nil, errors.New("Email sudah terdaftar")
+	}
+
+	userByName, err := uu.Repo.GetByUsername(data.Username)
+	if userByName != nil && err == nil {
+		return nil, errors.New("Username sudah terdaftar")
+	}
+
 	passwordHash, err := hashPassword(data.Password)
 	if err != nil {
 		fmt.Println(err)
@@ -134,6 +144,16 @@ func (uu UserDataUsecase) UpdateUser(data du.UpdateUserRequest, accessToken stri
 	// if err != nil {
 	// 	return false, err
 	// }
+
+	userEmail, err := uu.Repo.GetByEmail(data.Email)
+	if userEmail != nil && err == nil {
+		return false, errors.New("Email sudah terdaftar")
+	}
+
+	userByName, err := uu.Repo.GetByUsername(data.Username)
+	if userByName != nil && err == nil {
+		return false, errors.New("Username sudah terdaftar")
+	}
 
 	userID, err := utils.GetUserIDFromToken(accessToken, uu.Conf.App.SecretKey)
 	if err != nil {

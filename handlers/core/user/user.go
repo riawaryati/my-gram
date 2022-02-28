@@ -40,37 +40,37 @@ func (ch UserDataHandler) RegisterUser(res http.ResponseWriter, req *http.Reques
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	user, err := ch.Usecase.RegisterUser(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
-	respData = &handlers.ResponseData{
-		Status: cg.Success,
-		Data:   user,
-	}
+	// respData = &handlers.ResponseData{
+	// 	Status: cg.Success,
+	// 	Data:   user,
+	// }
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, user, http.StatusCreated)
 	return
 }
 
@@ -84,28 +84,28 @@ func (ch UserDataHandler) LoginUser(res http.ResponseWriter, req *http.Request) 
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	jwtToken, err := ch.Usecase.LoginUser(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -114,7 +114,7 @@ func (ch UserDataHandler) LoginUser(res http.ResponseWriter, req *http.Request) 
 		Data:   jwtToken,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, jwtToken, http.StatusOK)
 	return
 }
 
@@ -131,7 +131,7 @@ func (ch UserDataHandler) UpdateUser(res http.ResponseWriter, req *http.Request)
 	// 	respData.Data = &handlers.ResponseMessageData{
 	// 		Message: cg.Fail,
 	// 	}
-	// 	handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+	// 	handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 	// 	return
 	// }
 
@@ -140,7 +140,7 @@ func (ch UserDataHandler) UpdateUser(res http.ResponseWriter, req *http.Request)
 	// 	message = "Invalid param user id"
 
 	// 	respData.Data = general.ResponseMessageData{Message: message}
-	// 	handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+	// 	handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 	// 	return
 	// }
 
@@ -149,21 +149,21 @@ func (ch UserDataHandler) UpdateUser(res http.ResponseWriter, req *http.Request)
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
@@ -173,16 +173,16 @@ func (ch UserDataHandler) UpdateUser(res http.ResponseWriter, req *http.Request)
 	user, err := ch.Usecase.UpdateUser(param, accessToken)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
-	respData = &handlers.ResponseData{
-		Status: cg.Success,
-		Data:   user,
-	}
+	// respData = &handlers.ResponseData{
+	// 	Status: cg.Success,
+	// 	Data:   user,
+	// }
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, user, http.StatusOK)
 	return
 }
 
@@ -196,7 +196,7 @@ func (ch UserDataHandler) DeleteUser(res http.ResponseWriter, req *http.Request)
 	// if !ok {
 	// 	message = "Url Param 'userId' is missing"
 	// 	respData.Data = general.ResponseMessageData{Message: message}
-	// 	handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+	// 	handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 	// 	return
 	// }
 
@@ -205,7 +205,7 @@ func (ch UserDataHandler) DeleteUser(res http.ResponseWriter, req *http.Request)
 	// 	message = "Invalid param order id"
 
 	// 	respData.Data = general.ResponseMessageData{Message: message}
-	// 	handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+	// 	handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 	// 	return
 	// }
 
@@ -218,7 +218,7 @@ func (ch UserDataHandler) DeleteUser(res http.ResponseWriter, req *http.Request)
 		message = err.Error()
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -226,14 +226,15 @@ func (ch UserDataHandler) DeleteUser(res http.ResponseWriter, req *http.Request)
 		message = "Update user gagal"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
-	respData = &handlers.ResponseData{
-		Status: cg.Success,
-		Data:   message,
-	}
+	// respData = &handlers.ResponseData{
+	// 	Status: cg.Success,
+	// 	Data:   message,
+	// }
+	response := general.ResponseMessageData{Message: "Your account has been succesfully deleted"}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, response, http.StatusOK)
 }

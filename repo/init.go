@@ -18,6 +18,9 @@ type Repo struct {
 
 func NewRepo(db *infra.DatabaseList, logger *logrus.Logger) Repo {
 	return Repo{
-		User: user.NewMasterRepo(db, logger),
+		User:        user.NewMasterRepo(db, logger),
+		Comment:     comment.NewMasterRepo(db, logger),
+		Photo:       photo.NewMasterRepo(db, logger),
+		SocialMedia: socialmedia.NewMasterRepo(db, logger),
 	}
 }

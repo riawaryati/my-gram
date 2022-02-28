@@ -29,10 +29,10 @@ const (
 		created_at,
 		updated_at
 	FROM
-		socialmedias`
+		social_medias`
 
 	uqInsertSocialMedia = `
-	INSERT INTO socialmedias (
+	INSERT INTO social_medias (
 		name,
 		social_media_url,
 		user_id,
@@ -44,13 +44,13 @@ const (
 
 	uqUpdateSocialMedia = `
 	UPDATE 
-		socialmedias
+		social_medias
 	SET
 		updated_at = NOW()`
 
 	uqDeleteSocialMedia = `
 		DELETE FROM 
-			socialmedias `
+			social_medias `
 
 	uqWhere = `
 	WHERE`
@@ -71,8 +71,8 @@ const (
 type SocialMediaDataRepoItf interface {
 	GetByID(socialmediaID int) (*du.SocialMedia, error)
 	GetListByUserID(userID int) ([]du.SocialMedia, error)
-	InsertSocialMedia(tx *sql.Tx, data du.CreateSocialMedia) (int, error)
-	UpdateSocialMedia(tx *sql.Tx, data du.UpdateSocialMedia) error
+	InsertSocialMedia(data du.CreateSocialMedia) (int, error)
+	UpdateSocialMedia(data du.UpdateSocialMedia) error
 	DeleteByID(socialmediaID int) error
 }
 
@@ -116,7 +116,7 @@ func (ur SocialMediaDataRepo) GetListByUserID(userID int) ([]du.SocialMedia, err
 	return res, nil
 }
 
-func (ur SocialMediaDataRepo) InsertSocialMedia(tx *sql.Tx, data du.CreateSocialMedia) (int, error) {
+func (ur SocialMediaDataRepo) InsertSocialMedia(data du.CreateSocialMedia) (int, error) {
 	param := make([]interface{}, 0)
 
 	param = append(param, data.Name)
@@ -133,11 +133,11 @@ func (ur SocialMediaDataRepo) InsertSocialMedia(tx *sql.Tx, data du.CreateSocial
 	query = ur.DBList.Backend.Write.Rebind(query)
 
 	var res *sql.Row
-	if tx == nil {
-		res = ur.DBList.Backend.Write.QueryRow(query, args...)
-	} else {
-		res = tx.QueryRow(query, args...)
-	}
+	// if tx == nil {
+	res = ur.DBList.Backend.Write.QueryRow(query, args...)
+	// } else {
+	// 	res = tx.QueryRow(query, args...)
+	// }
 
 	if err != nil {
 		return 0, err
@@ -157,19 +157,19 @@ func (ur SocialMediaDataRepo) InsertSocialMedia(tx *sql.Tx, data du.CreateSocial
 	return socialmediaID, nil
 }
 
-func (ur SocialMediaDataRepo) UpdateSocialMedia(tx *sql.Tx, data du.UpdateSocialMedia) error {
-	var err error
-
+func (ur SocialMediaDataRepo) UpdateSocialMedia(data du.UpdateSocialMedia) error {
 	q := fmt.Sprintf("%s, %s, %s %s%s", uqUpdateSocialMedia, uqFilterName, uqFilterSocialMediaUrl, uqWhere, uqFilterSocialMediaID)
 
 	query, args, err := ur.DBList.Backend.Read.In(q, data.Name, data.SocialMediaUrl, data.ID)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	query = ur.DBList.Backend.Write.Rebind(query)
 	_, err = ur.DBList.Backend.Write.Exec(query, args...)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

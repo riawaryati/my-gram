@@ -2,6 +2,7 @@ package socialmedia
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/riawaryati/mygram/backend/domain/general"
 	du "github.com/riawaryati/mygram/backend/domain/socialmedia"
@@ -16,7 +17,7 @@ import (
 type SocialMediaDataUsecaseItf interface {
 	CreateSocialMedia(data du.SocialMediaRequest, token string) (*du.CreateSocialMediaResponse, error)
 	UpdateSocialMedia(data du.SocialMediaRequest, socialMediaId int, token string) (*du.UpdateSocialMediaResponse, error)
-	GetSocialMediasByToken(token string) ([]du.SocialMediaResponse, error)
+	GetSocialMediasByToken(token string) (*du.SocialMediaGetResponse, error)
 	DeleteByID(socialmediaId int) (bool, error)
 }
 
@@ -39,10 +40,10 @@ func newSocialMediaDataUsecase(r repo.Repo, conf *general.SectionService, logger
 }
 
 func (uu SocialMediaDataUsecase) CreateSocialMedia(data du.SocialMediaRequest, token string) (*du.CreateSocialMediaResponse, error) {
-	tx, err := uu.DBList.Backend.Write.Begin()
-	if err != nil {
-		return nil, err
-	}
+	// tx, err := uu.DBList.Backend.Write.Begin()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	userID, err := utils.GetUserIDFromToken(token, uu.Conf.App.SecretKey)
 	if err != nil {
@@ -56,7 +57,7 @@ func (uu SocialMediaDataUsecase) CreateSocialMedia(data du.SocialMediaRequest, t
 		Name:           data.Name,
 	}
 
-	socialmediaID, err := uu.Repo.InsertSocialMedia(tx, reqData)
+	socialmediaID, err := uu.Repo.InsertSocialMedia(reqData)
 	if err != nil {
 		return nil, errors.New("failed to insert socialmedia")
 	}
@@ -77,7 +78,7 @@ func (uu SocialMediaDataUsecase) CreateSocialMedia(data du.SocialMediaRequest, t
 	return &socialmediaResponse, nil
 }
 
-func (uu SocialMediaDataUsecase) GetSocialMediasByToken(token string) ([]du.SocialMediaResponse, error) {
+func (uu SocialMediaDataUsecase) GetSocialMediasByToken(token string) (*du.SocialMediaGetResponse, error) {
 
 	userID, err := utils.GetUserIDFromToken(token, uu.Conf.App.SecretKey)
 	if err != nil {
@@ -108,18 +109,22 @@ func (uu SocialMediaDataUsecase) GetSocialMediasByToken(token string) ([]du.Soci
 		}
 
 		socialmediaRes := du.SocialMediaResponse{
-			ID:        socialmedia.ID,
-			Name:      socialmedia.Name,
-			UserID:    socialmedia.UserID,
-			UpdatedAt: socialmedia.UpdatedAt,
-			CreatedAt: socialmedia.CreatedAt,
-			User:      userSocialMedia,
+			ID:             socialmedia.ID,
+			Name:           socialmedia.Name,
+			UserID:         socialmedia.UserID,
+			UpdatedAt:      socialmedia.UpdatedAt,
+			CreatedAt:      socialmedia.CreatedAt,
+			SocialMediaUrl: socialmedia.SocialMediaUrl,
+			User:           userSocialMedia,
 		}
 
 		res = append(res, socialmediaRes)
 	}
 
-	return res, nil
+	response := du.SocialMediaGetResponse{
+		SocialMedias: res,
+	}
+	return &response, nil
 }
 
 func (uu SocialMediaDataUsecase) DeleteByID(socialmediaID int) (bool, error) {
@@ -133,13 +138,14 @@ func (uu SocialMediaDataUsecase) DeleteByID(socialmediaID int) (bool, error) {
 }
 
 func (uu SocialMediaDataUsecase) UpdateSocialMedia(data du.SocialMediaRequest, socialMediaID int, token string) (*du.UpdateSocialMediaResponse, error) {
-	tx, err := uu.DBList.Backend.Write.Begin()
-	if err != nil {
-		return nil, err
-	}
+	// tx, err := uu.DBList.Backend.Write.Begin()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	userID, err := utils.GetUserIDFromToken(token, uu.Conf.App.SecretKey)
 	if err != nil {
+		fmt.Println(err)
 		uu.Log.WithField("user id", userID).WithError(err).Error("fail to get user id from token")
 		return nil, err
 	}
@@ -151,8 +157,9 @@ func (uu SocialMediaDataUsecase) UpdateSocialMedia(data du.SocialMediaRequest, s
 		Name:           data.Name,
 	}
 
-	err = uu.Repo.UpdateSocialMedia(tx, reqData)
+	err = uu.Repo.UpdateSocialMedia(reqData)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 

@@ -68,8 +68,8 @@ const (
 type CommentDataRepoItf interface {
 	GetByID(commentID int) (*du.Comment, error)
 	GetListByUserID(userID int) ([]du.Comment, error)
-	InsertComment(tx *sql.Tx, data du.CreateComment) (int, error)
-	UpdateComment(tx *sql.Tx, data du.UpdateComment) error
+	InsertComment(data du.CreateComment) (int, error)
+	UpdateComment(data du.UpdateComment) error
 	DeleteByID(commentID int) error
 }
 
@@ -110,14 +110,10 @@ func (ur CommentDataRepo) GetListByUserID(userID int) ([]du.Comment, error) {
 		return nil, err
 	}
 
-	if res != nil {
-		return nil, nil
-	}
-
 	return res, nil
 }
 
-func (ur CommentDataRepo) InsertComment(tx *sql.Tx, data du.CreateComment) (int, error) {
+func (ur CommentDataRepo) InsertComment(data du.CreateComment) (int, error) {
 	param := make([]interface{}, 0)
 
 	param = append(param, data.Message)
@@ -134,11 +130,11 @@ func (ur CommentDataRepo) InsertComment(tx *sql.Tx, data du.CreateComment) (int,
 	query = ur.DBList.Backend.Write.Rebind(query)
 
 	var res *sql.Row
-	if tx == nil {
-		res = ur.DBList.Backend.Write.QueryRow(query, args...)
-	} else {
-		res = tx.QueryRow(query, args...)
-	}
+	// if tx == nil {
+	res = ur.DBList.Backend.Write.QueryRow(query, args...)
+	// } else {
+	// 	res = tx.QueryRow(query, args...)
+	// }
 
 	if err != nil {
 		return 0, err
@@ -158,7 +154,7 @@ func (ur CommentDataRepo) InsertComment(tx *sql.Tx, data du.CreateComment) (int,
 	return commentID, nil
 }
 
-func (ur CommentDataRepo) UpdateComment(tx *sql.Tx, data du.UpdateComment) error {
+func (ur CommentDataRepo) UpdateComment(data du.UpdateComment) error {
 	var err error
 
 	q := fmt.Sprintf("%s, %s %s%s", uqUpdateComment, uqFilterMessage, uqWhere, uqFilterCommentID)

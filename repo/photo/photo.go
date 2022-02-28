@@ -79,8 +79,8 @@ const (
 type PhotoDataRepoItf interface {
 	GetByID(photoID int) (*du.Photo, error)
 	GetListByUserID(userID int) ([]du.Photo, error)
-	InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int, error)
-	UpdatePhoto(tx *sql.Tx, data du.UpdatePhoto) error
+	InsertPhoto(data du.CreatePhoto) (int, error)
+	UpdatePhoto(data du.UpdatePhoto) error
 	DeleteByID(photoID int) error
 }
 
@@ -107,6 +107,7 @@ func (ur PhotoDataRepo) GetByID(photoID int) (*du.Photo, error) {
 }
 
 func (ur PhotoDataRepo) GetListByUserID(userID int) ([]du.Photo, error) {
+	//fmt.Println("iniiih ")
 	var res []du.Photo
 
 	q := fmt.Sprintf("%s%s%s", uqSelectPhoto, uqWhere, uqFilterUserID)
@@ -116,15 +117,21 @@ func (ur PhotoDataRepo) GetListByUserID(userID int) ([]du.Photo, error) {
 	}
 
 	query = ur.DBList.Backend.Read.Rebind(query)
+	//fmt.Println("kesini ")
 	err = ur.DBList.Backend.Read.Select(&res, query, args...)
+	//fmt.Println("result ", res)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
 
+	// if res == nil {
+	// 	return nil, sql.ErrNoRows
+	// }
+
 	return res, nil
 }
 
-func (ur PhotoDataRepo) InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int, error) {
+func (ur PhotoDataRepo) InsertPhoto(data du.CreatePhoto) (int, error) {
 	param := make([]interface{}, 0)
 
 	param = append(param, data.Title)
@@ -142,11 +149,11 @@ func (ur PhotoDataRepo) InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int, error
 	query = ur.DBList.Backend.Write.Rebind(query)
 
 	var res *sql.Row
-	if tx == nil {
-		res = ur.DBList.Backend.Write.QueryRow(query, args...)
-	} else {
-		res = tx.QueryRow(query, args...)
-	}
+	// if tx == nil {
+	res = ur.DBList.Backend.Write.QueryRow(query, args...)
+	// } else {
+	// 	res = tx.QueryRow(query, args...)
+	// }
 
 	if err != nil {
 		return 0, err
@@ -166,12 +173,12 @@ func (ur PhotoDataRepo) InsertPhoto(tx *sql.Tx, data du.CreatePhoto) (int, error
 	return photoID, nil
 }
 
-func (ur PhotoDataRepo) UpdatePhoto(tx *sql.Tx, data du.UpdatePhoto) error {
+func (ur PhotoDataRepo) UpdatePhoto(data du.UpdatePhoto) error {
 	var err error
 
-	q := fmt.Sprintf("%s, %s, %s %s%s", uqUpdatePhoto, uqFilterCaption, uqFilterTitle, uqWhere, uqFilterPhotoID)
+	q := fmt.Sprintf("%s, %s, %s, %s %s%s", uqUpdatePhoto, uqFilterCaption, uqFilterTitle, uqFilterPhotoUrl, uqWhere, uqFilterPhotoID)
 
-	query, args, err := ur.DBList.Backend.Read.In(q, data.Caption, data.Title, data.ID)
+	query, args, err := ur.DBList.Backend.Read.In(q, data.Caption, data.Title, data.PhotoUrl, data.ID)
 	if err != nil {
 		return err
 	}

@@ -42,21 +42,21 @@ func (ch SocialMediaDataHandler) CreateSocialMedia(res http.ResponseWriter, req 
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (ch SocialMediaDataHandler) CreateSocialMedia(res http.ResponseWriter, req 
 	socialmedia, err := ch.Usecase.CreateSocialMedia(param, accessToken)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -75,7 +75,7 @@ func (ch SocialMediaDataHandler) CreateSocialMedia(res http.ResponseWriter, req 
 		Data:   socialmedia,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, socialmedia, http.StatusCreated)
 	return
 }
 
@@ -85,14 +85,14 @@ func (ch SocialMediaDataHandler) UpdateSocialMedia(res http.ResponseWriter, req 
 	}
 
 	message := ""
-	socialmediaidParam, ok := mux.Vars(req)["socialmediaId"]
+	socialmediaidParam, ok := mux.Vars(req)["socialMediaId"]
 
 	if !ok {
 		message = "Url Param 'socialmediaId' is missing"
 		respData.Data = &handlers.ResponseMessageData{
 			Message: cg.Fail,
 		}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -101,7 +101,7 @@ func (ch SocialMediaDataHandler) UpdateSocialMedia(res http.ResponseWriter, req 
 		message = "Invalid param socialmedia id"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -110,21 +110,21 @@ func (ch SocialMediaDataHandler) UpdateSocialMedia(res http.ResponseWriter, req 
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataEmpty}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataNotValid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
 	err = validate.Validate(param)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: cg.HandlerErrorRequestDataFormatInvalid}
-		handlers.WriteResponse(res, respData, http.StatusBadRequest)
+		handlers.WriteResponse(res, respData.Data, http.StatusBadRequest)
 		return
 	}
 
@@ -134,7 +134,7 @@ func (ch SocialMediaDataHandler) UpdateSocialMedia(res http.ResponseWriter, req 
 	socialmedia, err := ch.Usecase.UpdateSocialMedia(param, socialmediaid, accessToken)
 	if err != nil {
 		respData.Data = general.ResponseMessageData{Message: err.Error()}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -143,7 +143,7 @@ func (ch SocialMediaDataHandler) UpdateSocialMedia(res http.ResponseWriter, req 
 		Data:   socialmedia,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, socialmedia, http.StatusOK)
 	return
 }
 
@@ -157,7 +157,7 @@ func (ch SocialMediaDataHandler) DeleteSocialMedia(res http.ResponseWriter, req 
 	if !ok {
 		message = "Url Param 'socialMediaId' is missing"
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -166,7 +166,7 @@ func (ch SocialMediaDataHandler) DeleteSocialMedia(res http.ResponseWriter, req 
 		message = "Invalid param social media id"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -176,7 +176,7 @@ func (ch SocialMediaDataHandler) DeleteSocialMedia(res http.ResponseWriter, req 
 		message = err.Error()
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -184,7 +184,7 @@ func (ch SocialMediaDataHandler) DeleteSocialMedia(res http.ResponseWriter, req 
 		message = "Update socialmedia gagal"
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -193,7 +193,9 @@ func (ch SocialMediaDataHandler) DeleteSocialMedia(res http.ResponseWriter, req 
 		Data:   message,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	response := general.ResponseMessageData{Message: "Your social media has been succesfully deleted"}
+
+	handlers.WriteResponse(res, response, http.StatusOK)
 }
 
 func (ch SocialMediaDataHandler) GetSocialMedias(res http.ResponseWriter, req *http.Request) {
@@ -210,7 +212,7 @@ func (ch SocialMediaDataHandler) GetSocialMedias(res http.ResponseWriter, req *h
 		message := err.Error()
 
 		respData.Data = general.ResponseMessageData{Message: message}
-		handlers.WriteResponse(res, respData, http.StatusInternalServerError)
+		handlers.WriteResponse(res, respData.Data, http.StatusInternalServerError)
 		return
 	}
 
@@ -219,5 +221,5 @@ func (ch SocialMediaDataHandler) GetSocialMedias(res http.ResponseWriter, req *h
 		Data:   socialMedias,
 	}
 
-	handlers.WriteResponse(res, respData, http.StatusOK)
+	handlers.WriteResponse(res, socialMedias, http.StatusOK)
 }

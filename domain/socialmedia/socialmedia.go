@@ -14,26 +14,26 @@ type SocialMedia struct {
 }
 
 type SocialMediaRequest struct {
-	Name           string `json:"message"`
+	Name           string `json:"name"`
 	SocialMediaUrl string `json:"social_media_url"`
 }
 
 type CreateSocialMedia struct {
-	Name           string `json:"message"`
+	Name           string `json:"name"`
 	SocialMediaUrl string `json:"social_media_url"`
 	UserID         int    `json:"user_id"`
 }
 
 type UpdateSocialMedia struct {
 	ID             int    `json:"id"`
-	Name           string `json:"message"`
+	Name           string `json:"name"`
 	SocialMediaUrl string `json:"social_media_url"`
 	UserID         int    `json:"user_id"`
 }
 
 type CreateSocialMediaResponse struct {
 	ID             int       `json:"id"`
-	Name           string    `json:"message"`
+	Name           string    `json:"name"`
 	SocialMediaUrl string    `json:"social_media_url"`
 	UserID         int       `json:"user_id"`
 	CreatedAt      time.Time `json:"created_at"`
@@ -41,19 +41,22 @@ type CreateSocialMediaResponse struct {
 
 type UpdateSocialMediaResponse struct {
 	ID             int        `json:"id"`
-	Name           string     `json:"message"`
+	Name           string     `json:"name"`
 	SocialMediaUrl string     `json:"social_media_url"`
 	UserID         int        `json:"user_id"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
 
+type SocialMediaGetResponse struct {
+	SocialMedias []SocialMediaResponse `json:"social_medias"`
+}
 type SocialMediaResponse struct {
 	ID             int             `json:"id"`
-	Name           string          `json:"message"`
+	Name           string          `json:"name"`
 	SocialMediaUrl string          `json:"social_media_url"`
-	UserID         int             `json:"UserId"`
-	CreatedAt      time.Time       `json:"createdAt"`
-	UpdatedAt      *time.Time      `json:"updatedAt"`
+	UserID         int             `json:"user_id"`
+	CreatedAt      time.Time       `json:"created_at"`
+	UpdatedAt      *time.Time      `json:"updated_at"`
 	User           UserSocialMedia `json:"User"`
 }
 
